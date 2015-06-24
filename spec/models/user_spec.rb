@@ -21,8 +21,11 @@ describe User do
   #password_　confirmation属性のデータがユーザー入力にある
   it { should respond_to(:password_confirmation) }
 
+
   #@userがvalidである
   it { should be_valid }
+  #@userがauthenticateに応答する
+  it { should respond_to(:authenticate) }
 
   describe ":nameが空の場合のテスト" do
     before { @user.name = " " }
@@ -84,4 +87,26 @@ describe User do
     it { should_not be_valid }
   end
 
+  describe "passwordが５文字以下のとき" do
+    before { @user.password = @user.password_confirmation = "a" * 5 }
+    #validではないと検証する
+    it { should be_invalid }
+  end
+ 
+  describe "authenticateメソッドの戻り値について" do
+    before { @user.save }
+    let(:found_user) { User.find_by(email: @user.email) }
+ 
+    describe "適正なpasswordのとき" do
+      #password一致する
+      it { should eq found_user.authenticate(@user.password) }
+    end
+ 
+    describe "不正なpasswordのとき" do
+      let(:user_for_invalid_password) { found_user.authenticate("invalid") }
+      #password不一致
+      it { should_not eq user_for_invalid_password }
+      specify { expect(user_for_invalid_password).to be_false }
+    end
+  end
 end
