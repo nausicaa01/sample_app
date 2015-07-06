@@ -21,11 +21,22 @@ describe User do
   #password_　confirmation属性のデータがユーザー入力にある
   it { should respond_to(:password_confirmation) }
 
-
-  #@userがvalidである
-  it { should be_valid }
   #@userがauthenticateに応答する
   it { should respond_to(:authenticate) }
+  it { should respond_to(:admin) }
+
+    #@userがvalidである
+  it { should be_valid }
+  it { should_not be_admin }
+
+  describe "with admin attribute set to 'true'" do
+    before do
+      @user.save!
+      @user.toggle!(:admin)
+    end
+
+    it { should be_admin }
+  end
 
   describe ":nameが空の場合のテスト" do
     before { @user.name = " " }
